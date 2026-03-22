@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: jobela-postgres
+    environment:
+      POSTGRES_DB: jobela
+      POSTGRES_USER: jobela
+      POSTGRES_PASSWORD: jobela
+    ports:
+      - "5433:5432"
+    volumes:
+      - jobela_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  jobela_postgres_data:
