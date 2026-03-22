@@ -1,10 +1,10 @@
-package com.jobela.jobela_api.candidate.controller;
+package com.jobela.jobela_api.candidate.controller.candidate;
 
 
 import com.jobela.jobela_api.candidate.dto.request.candidate.CreateCandidateRequest;
 import com.jobela.jobela_api.candidate.dto.request.candidate.UpdateCandidateRequest;
 import com.jobela.jobela_api.candidate.dto.response.candidate.CandidateResponse;
-import com.jobela.jobela_api.candidate.service.CandidateService;
+import com.jobela.jobela_api.candidate.service.candidate.CandidateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

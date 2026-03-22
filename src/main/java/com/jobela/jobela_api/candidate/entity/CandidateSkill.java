@@ -1,6 +1,5 @@
 package com.jobela.jobela_api.candidate.entity;
 
-
 import com.jobela.jobela_api.common.enums.SkillLevel;
 import jakarta.persistence.*;
 import lombok.*;

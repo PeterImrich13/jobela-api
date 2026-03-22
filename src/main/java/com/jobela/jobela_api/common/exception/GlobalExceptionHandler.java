@@ -34,12 +34,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex, HttpServletRequest request) {
-        log.warn("User already exists {}: ", ex.getMessage());
+        log.warn("User already exists: {} ", ex.getMessage());
 
         var errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.CONFLICT.value(),
-                "Not found",
+                "Conflict",
                 ex.getMessage(),
                 request.getRequestURI()
         );
@@ -50,6 +50,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<ErrorResponse> handleInvalidPassword(InvalidPasswordException ex, HttpServletRequest request) {
         log.warn("Invalid password operation: {}", ex.getMessage());
+
         var errorResponse = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -90,6 +91,36 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
 
+    }
+
+    @ExceptionHandler(CandidateSkillAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleSkillAlreadyExists(CandidateSkillAlreadyExistsException ex, HttpServletRequest request) {
+        log.warn("Skill already exists: {}", ex.getMessage());
+
+        var errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                "Conflict",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(SkillNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSkillNotFound(SkillNotFoundException ex, HttpServletRequest request) {
+        log.warn("Skill not found: {}", ex.getMessage());
+
+        var errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

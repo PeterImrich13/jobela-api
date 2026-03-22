@@ -1,4 +1,4 @@
-package com.jobela.jobela_api.candidate.service;
+package com.jobela.jobela_api.candidate.service.candidate;
 
 import com.jobela.jobela_api.candidate.dto.request.candidate.UpdateCandidateRequest;
 import com.jobela.jobela_api.candidate.entity.Candidate;
