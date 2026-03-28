@@ -7,12 +7,13 @@ import com.jobela.jobela_api.candidate.dto.request.candidate.CreateCandidateRequ
 import com.jobela.jobela_api.candidate.dto.response.candidate.CandidateResponse;
 import com.jobela.jobela_api.candidate.mapper.CandidateMapper;
 import com.jobela.jobela_api.candidate.repository.CandidateRepository;
+import com.jobela.jobela_api.common.exception.BadRequestException;
 import com.jobela.jobela_api.common.exception.CandidateAlreadyExistsException;
 import com.jobela.jobela_api.common.exception.CandidateNotFoundException;
 import com.jobela.jobela_api.common.exception.UserNotFoundException;
 import com.jobela.jobela_api.user.entity.User;
 import com.jobela.jobela_api.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,27 +30,30 @@ public class CandidateServiceImpl implements CandidateService {
 
     @Override
     public CandidateResponse createCandidate(Long userId, CreateCandidateRequest request) {
-
-        log.info("Creating candidate, id: {}", userId);
+        log.info("Creating candidate for userId={}", userId);
 
         var user = getUserOrThrow(userId);
 
         if (candidateRepository.existsByUserId(userId)) {
-            throw new CandidateAlreadyExistsException("Candidate already exists for userId: " + user);
+            throw new CandidateAlreadyExistsException("Candidate already exists for userId: " + userId);
         }
+
         var candidate = candidateMapper.toEntity(request);
         candidate.setUser(user);
 
+        validateRequiredCandidateFields(candidate);
+
         var savedCandidate = candidateRepository.save(candidate);
 
-        log.info("Candidate profile created successfully with id: {}", savedCandidate.getId());
+        log.info("Candidate profile created successfully with id={}", savedCandidate.getId());
         return candidateMapper.toResponse(savedCandidate);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CandidateResponse getCandidateById(Long candidateId) {
 
-        log.info("Fetching candidate with id: {}", candidateId);
+        log.info("Fetching candidate with id={}", candidateId);
 
         var candidate = getCandidateByIdOrThrow(candidateId);
 
@@ -57,9 +61,10 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CandidateResponse getCandidateByUserId(Long userId) {
 
-        log.info("Fetching candidate by userId: {}", userId);
+        log.info("Fetching candidate by userId={}", userId);
 
         var candidate = candidateRepository.findByUserId(userId)
                 .orElseThrow(() -> new CandidateNotFoundException("Candidate not found for userId: " + userId));
@@ -70,29 +75,31 @@ public class CandidateServiceImpl implements CandidateService {
     @Override
     public CandidateResponse updateCandidate(Long candidateId, UpdateCandidateRequest request) {
 
-        log.info("Updating candidate with id: {}", candidateId);
+        log.info("Updating candidate with id={}", candidateId);
 
         var candidate = getCandidateByIdOrThrow(candidateId);
 
         candidateMapper.updateCandidateFromRequest(request, candidate);
 
-        var updated = candidateRepository.save(candidate);
+        validateUpdatedRequiredFields(request, candidate);
 
-        log.info("Candidate updated successfully with id: {}", updated.getId());
+        var updatedCandidate = candidateRepository.save(candidate);
 
-        return candidateMapper.toResponse(updated);
+        log.info("Candidate updated successfully with id={}", updatedCandidate.getId());
+
+        return candidateMapper.toResponse(updatedCandidate);
     }
 
     @Override
     public void deleteCandidate(Long candidateId) {
 
-        log.info("Deleting candidate with id: {}", candidateId);
+        log.info("Deleting candidate with id={}", candidateId);
 
         var candidate = getCandidateByIdOrThrow(candidateId);
 
         candidateRepository.delete(candidate);
 
-        log.info("Candidate successfully deleted, id: {}", candidateId);
+        log.info("Candidate successfully deleted, id={}", candidateId);
     }
 
     private User getUserOrThrow(Long userId) {
@@ -101,8 +108,28 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     private Candidate getCandidateByIdOrThrow(Long candidateId) {
-        return candidateRepository.findByUserId(candidateId)
+        return candidateRepository.findById(candidateId)
                 .orElseThrow(() -> new CandidateNotFoundException("Candidate not found with id: " + candidateId));
     }
+    private void validateRequiredCandidateFields(Candidate candidate) {
+        if (candidate.getFirstName() == null || candidate.getFirstName().isBlank()) {
+            throw new BadRequestException("First name cannot be blank");
+        }
 
+        if (candidate.getLastName() == null || candidate.getLastName().isBlank()) {
+            throw new BadRequestException("Last name cannot be blank");
+        }
+    }
+
+    private void validateUpdatedRequiredFields(UpdateCandidateRequest request, Candidate candidate) {
+        if (request.firstName() != null
+                && (candidate.getFirstName() == null || candidate.getFirstName().isBlank())) {
+            throw new BadRequestException("First name cannot be blank");
+        }
+
+        if (request.lastName() != null
+                && (candidate.getLastName() == null || candidate.getLastName().isBlank())) {
+            throw new BadRequestException("Last name cannot be blank");
+        }
+    }
 }

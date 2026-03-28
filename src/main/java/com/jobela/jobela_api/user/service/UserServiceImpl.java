@@ -4,15 +4,16 @@ import com.jobela.jobela_api.common.exception.InvalidPaginationParameterExceptio
 import com.jobela.jobela_api.common.exception.InvalidPasswordException;
 import com.jobela.jobela_api.common.exception.UserAlreadyExistsException;
 import com.jobela.jobela_api.common.exception.UserNotFoundException;
+import com.jobela.jobela_api.common.mapper.StringMapperHelper;
 import com.jobela.jobela_api.user.dto.request.ChangePasswordRequest;
 import com.jobela.jobela_api.user.dto.request.CreateUserRequest;
 import com.jobela.jobela_api.user.dto.request.UpdateUserRequest;
 import com.jobela.jobela_api.user.dto.response.UserResponse;
 import com.jobela.jobela_api.user.entity.User;
-
+import com.jobela.jobela_api.common.exception.BadRequestException;
 import com.jobela.jobela_api.user.mapper.UserMapper;
 import com.jobela.jobela_api.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,17 +31,24 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final StringMapperHelper stringMapperHelper;
 
    @Override
     public UserResponse createUser(CreateUserRequest request) {
-       log.info("Creating user with email={}", request.email());
+       var cleanedEmail = stringMapperHelper.clean(request.email());
 
-       if (userRepository.existsByEmail(request.email())) {
-           log.warn("User creation failed, email already exists: {}", request.email());
-           throw new UserAlreadyExistsException("User with email already exists: " + request.email());
+       log.info("Creating user with email={}", cleanedEmail);
+
+      if (cleanedEmail == null || cleanedEmail.isEmpty()) {
+          throw new BadRequestException("Email cannot be blank");
+       }
+       if (userRepository.existsByEmailIgnoreCase(cleanedEmail)) {
+           log.warn("User creation failed, email already exists: {}", cleanedEmail);
+           throw new UserAlreadyExistsException("User with email already exists: " + cleanedEmail);
        }
 
        var user = userMapper.toEntity(request);
+
        var savedUser = userRepository.save(user);
 
        log.info("User created successfully with id={} and email={}", savedUser.getId(), savedUser.getEmail());
@@ -48,6 +56,7 @@ public class UserServiceImpl implements UserService {
    }
 
    @Override
+   @Transactional(readOnly = true)
    public UserResponse getUserById(Long userId) {
        log.info("Fetching user by id={}", userId);
 
@@ -57,6 +66,7 @@ public class UserServiceImpl implements UserService {
    }
 
    @Override
+   @Transactional(readOnly = true)
    public Page<UserResponse> getAllUsers(int page, int size, String sortBy, String direction) {
        log.info("Fetching all users page={}, size={}, sortBy={}, direction={}", page, size, sortBy, direction);
 
@@ -78,10 +88,21 @@ public class UserServiceImpl implements UserService {
 
        var user = getUserOrThrow(userId);
 
-       if (request.email() != null && !request.email().isBlank()) {
-           user.setEmail(request.email());
+       var cleanedEmail = stringMapperHelper.clean(request.email());
+
+       if (cleanedEmail == null || cleanedEmail.isEmpty()) {
+           throw new BadRequestException("Email cannot be blank");
        }
+
+       if (!user.getEmail().equalsIgnoreCase(cleanedEmail) && userRepository.existsByEmailIgnoreCase(cleanedEmail)) {
+               throw new UserAlreadyExistsException("User with email already exists" + cleanedEmail);
+       }
+
+       userMapper.updateUserFromRequest(request, user);
+
        var updatedUser = userRepository.save(user);
+
+       log.info("User updated successfully with id={}", updatedUser.getId());
 
        return userMapper.toResponse(updatedUser);
    }
@@ -95,7 +116,7 @@ public class UserServiceImpl implements UserService {
        user.setActive(false);
        userRepository.save(user);
 
-       log.info("User deactivated successfully id ={}", userId);
+       log.info("User deactivated successfully id={}", userId);
    }
 
    @Override
@@ -107,7 +128,7 @@ public class UserServiceImpl implements UserService {
        user.setActive(true);
        userRepository.save(user);
 
-       log.info("User activated successfully id ={}", userId);
+       log.info("User activated successfully id={}", userId);
    }
 
    @Override
@@ -127,7 +148,7 @@ public class UserServiceImpl implements UserService {
        user.setPassword(request.newPassword());
        userRepository.save(user);
 
-       log.info("Password chanced successfully for user with id={}", userId);
+       log.info("Password changed successfully for user with id={}", userId);
    }
 
    @Override
@@ -157,10 +178,10 @@ public class UserServiceImpl implements UserService {
        }
 
        if (!direction.equalsIgnoreCase("asc") && !direction.equalsIgnoreCase("desc")) {
-           throw new InvalidPaginationParameterException("Direction must be either 'asc' of 'desc'");
+           throw new InvalidPaginationParameterException("Direction must be either 'asc' or 'desc'");
        }
 
-       var allowedSortFields = Set.of("id", "cratedAt", "updatedAt");
+       var allowedSortFields = Set.of("id", "email", "createdAt", "updatedAt");
 
        if (!allowedSortFields.contains(sortBy)) {
            throw new InvalidPaginationParameterException("Invalid sortBy value. Allowed values: id, email, createdAt, updatedAt");

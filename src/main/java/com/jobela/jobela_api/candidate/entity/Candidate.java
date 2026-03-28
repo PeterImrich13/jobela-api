@@ -69,19 +69,19 @@ public class Candidate {
     private String profilePhotoUrl;
 
     @OneToOne(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
-    private CandidatePreference preference;
+    private CandidatePreference candidatePreference;
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<WorkExperience> workExperiences = new ArrayList<>();
+    private List<CandidateWorkExperience> candidateWorkExperiences = new ArrayList<>();
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Education> educations = new ArrayList<>();
+    private List<CandidateEducation> candidateEducations = new ArrayList<>();
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Certification> certifications = new ArrayList<>();
+    private List<CandidateCertification> candidateCertifications = new ArrayList<>();
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

@@ -1,21 +1,20 @@
 package com.jobela.jobela_api.candidate.entity;
 
 
-import com.jobela.jobela_api.common.enums.EmploymentType;
+import com.jobela.jobela_api.common.enums.EducationLevel;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "candidate_work_experiences")
+@Table(name = "candidate_educations")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class WorkExperience {
+public class CandidateEducation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,15 +24,15 @@ public class WorkExperience {
     @JoinColumn(name = "candidate_id", nullable = false)
     private Candidate candidate;
 
-    @Column(name = "company_name", nullable = false, length = 150)
-    private String companyName;
-
-    @Column(name = "job_title", nullable = false, length = 150)
-    private String jobTitle;
+    @Column(name = "school_name", nullable = false, length = 150)
+    private String schoolName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "employment_type", length = 30)
-    private EmploymentType employmentType;
+    @Column(name = "education_level", nullable = false, length = 30)
+    private EducationLevel level;
+
+    @Column(name = "field_of_study", length = 150)
+    private String fieldOfStudy;
 
     @Column(length = 100)
     private String city;
@@ -42,16 +41,16 @@ public class WorkExperience {
     private String country;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "end_date")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
-    @Column(name = "currently_working", nullable = false)
+    @Column(name = "currently_studying", nullable = false)
     @Builder.Default
-    private Boolean currentlyWorking = false;
+    private Boolean currentlyStudying = false;
 
-    @Column(length = 4000)
+    @Column(length = 3000)
     private String description;
 
     @Column(name = "created_at", nullable = false, updatable = false)

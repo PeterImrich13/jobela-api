@@ -1,20 +1,21 @@
 package com.jobela.jobela_api.candidate.entity;
 
 
-import com.jobela.jobela_api.common.enums.EducationLevel;
+import com.jobela.jobela_api.common.enums.EmploymentType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "candidate_educations")
+@Table(name = "candidate_work_experiences")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Education {
+public class CandidateWorkExperience {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,15 +25,15 @@ public class Education {
     @JoinColumn(name = "candidate_id", nullable = false)
     private Candidate candidate;
 
-    @Column(name = "school_name", nullable = false, length = 150)
-    private String schoolName;
+    @Column(name = "company_name", nullable = false, length = 150)
+    private String companyName;
+
+    @Column(name = "job_title", nullable = false, length = 150)
+    private String jobTitle;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "education_level", nullable = false, length = 30)
-    private EducationLevel level;
-
-    @Column(name = "field_of_study", length = 150)
-    private String fieldOfStudy;
+    @Column(name = "employment_type", length = 30)
+    private EmploymentType employmentType;
 
     @Column(length = 100)
     private String city;
@@ -41,16 +42,16 @@ public class Education {
     private String country;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date")
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
-    @Column(name = "currently_studying", nullable = false)
+    @Column(name = "currently_working", nullable = false)
     @Builder.Default
-    private Boolean currentlyStudying = false;
+    private Boolean currentlyWorking = false;
 
-    @Column(length = 3000)
+    @Column(length = 4000)
     private String description;
 
     @Column(name = "created_at", nullable = false, updatable = false)
