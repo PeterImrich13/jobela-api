@@ -62,6 +62,36 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    @ExceptionHandler(CandidateLanguageAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleCandidateLanguageAlreadyExists(CandidateLanguageAlreadyExistsException ex, HttpServletRequest request) {
+        log.warn("Candidate language already exists={}", ex.getMessage());
+
+        var errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                "Conflict",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(CandidateLanguageNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCandidateLanguageNotFound(CandidateLanguageNotFoundException ex, HttpServletRequest request) {
+        log.warn("Candidate language not foudn={}", ex.getMessage());
+
+        var errorResponse = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
     @ExceptionHandler(CandidateAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleCandidateAlreadyExists(CandidateAlreadyExistsException ex, HttpServletRequest request) {
         log.warn("Candidate already exists: {}", ex.getMessage());

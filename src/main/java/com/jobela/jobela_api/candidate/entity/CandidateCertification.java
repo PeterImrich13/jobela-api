@@ -27,20 +27,29 @@ public class CandidateCertification {
     @Column(nullable = false, length = 150)
     private String name;
 
-    @Column(length = 150)
+    @Column(nullable = false, length = 150)
     private String issuer;
 
     @Column(name = "issue_date")
     private LocalDate issueDate;
 
-    @Column(name = "credential_id", length = 100)
+    @Column(name = "credential_url", length = 255)
     private String credentialUrl;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

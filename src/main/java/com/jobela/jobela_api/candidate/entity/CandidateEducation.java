@@ -2,9 +2,11 @@ package com.jobela.jobela_api.candidate.entity;
 
 
 import com.jobela.jobela_api.common.enums.EducationLevel;
+import com.jobela.jobela_api.common.enums.EducationType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,10 +31,17 @@ public class CandidateEducation {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "education_level", nullable = false, length = 30)
-    private EducationLevel level;
+    private EducationLevel educationLevel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "education_type", nullable = false, length = 30)
+    private EducationType educationType;
 
     @Column(name = "field_of_study", length = 150)
     private String fieldOfStudy;
+
+    @Column(name = "degree",nullable = false, length = 150)
+    private String degree;
 
     @Column(length = 100)
     private String city;
@@ -41,10 +50,10 @@ public class CandidateEducation {
     private String country;
 
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date")
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     @Column(name = "currently_studying", nullable = false)
     @Builder.Default

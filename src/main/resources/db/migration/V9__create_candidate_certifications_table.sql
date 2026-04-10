@@ -4,8 +4,9 @@ CREATE TABLE candidate_certifications (
     name VARCHAR(150) NOT NULL,
     issuer VARCHAR(150) NOT NULL,
     issue_date DATE,
-    credential_id VARCHAR(100),
+    credential_url VARCHAR(255),
     created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
 
     CONSTRAINT fk_candidate_certifications_candidate
         FOREIGN KEY (candidate_id)
