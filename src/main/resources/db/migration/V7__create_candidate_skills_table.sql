@@ -1,6 +1,7 @@
 CREATE TABLE candidate_skills (
     id BIGSERIAL PRIMARY KEY,
     candidate_id BIGINT NOT NULL,
+    skill_type VARCHAR(20) NOT NULL,
     skill_name VARCHAR(100) NOT NULL,
     level VARCHAR(30) NOT NULL,
     created_at TIMESTAMP NOT NULL,

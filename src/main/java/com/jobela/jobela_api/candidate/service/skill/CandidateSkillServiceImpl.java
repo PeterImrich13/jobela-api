@@ -8,6 +8,7 @@ import com.jobela.jobela_api.candidate.entity.CandidateSkill;
 import com.jobela.jobela_api.candidate.mapper.CandidateSkillMapper;
 import com.jobela.jobela_api.candidate.repository.CandidateRepository;
 import com.jobela.jobela_api.candidate.repository.CandidateSkillRepository;
+import com.jobela.jobela_api.common.enums.SkillType;
 import com.jobela.jobela_api.common.exception.CandidateNotFoundException;
 import com.jobela.jobela_api.common.exception.CandidateSkillAlreadyExistsException;
 import com.jobela.jobela_api.common.exception.SkillNotFoundException;
@@ -39,13 +40,15 @@ public class CandidateSkillServiceImpl implements CandidateSkillService {
         var candidate = getCandidateByIdOrThrow(candidateId);
         var cleanedSkillName = stringMapperHelper.clean(request.skillName());
 
-        if (cleanedSkillName == null || cleanedSkillName.isEmpty()) {
-            throw new BadRequestException("Skill name cannot be blank");
-        }
+        validateSkillName(cleanedSkillName);
+        validateSkillType(request.skillType());
 
-        if (candidateSkillRepository.existsByCandidateIdAndSkillNameIgnoreCase(candidateId, cleanedSkillName)) {
+
+        if (candidateSkillRepository.existsByCandidateIdAndSkillNameIgnoreCaseAndSkillType(
+                candidateId, cleanedSkillName, request.skillType()
+        )) {
             throw new CandidateSkillAlreadyExistsException("Skill with name " + cleanedSkillName +
-                    " already exists for candidate with id: " + candidateId);
+                    " and type " + request.skillType() + " already exists for candidate with id: " + candidateId);
         }
 
         var skill = candidateSkillMapper.toEntity(request);
@@ -65,7 +68,6 @@ public class CandidateSkillServiceImpl implements CandidateSkillService {
     public CandidateSkillResponse getSkillById(Long candidateId, Long skillId) {
 
         log.info("Fetching skill with id={} for candidateId={}", skillId, candidateId);
-
 
         getCandidateByIdOrThrow(candidateId);
 
@@ -88,6 +90,23 @@ public class CandidateSkillServiceImpl implements CandidateSkillService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<CandidateSkillResponse> getAllSkillsByCandidateIdAndType(
+            Long candidateId, SkillType skillType
+    ) {
+        log.info("Fetching skills for candidateId={} and skillType={}", candidateId, skillType);
+
+        getCandidateByIdOrThrow(candidateId);
+        validateSkillType(skillType);
+
+        var skills = candidateSkillRepository.findAllByCandidateIdAndSkillType(candidateId, skillType);
+
+        return skills.stream()
+                .map(candidateSkillMapper::toResponse)
+                .toList();
+    }
+
+    @Override
     public CandidateSkillResponse updateSkill(Long candidateId, Long skillId, UpdateCandidateSkillRequest request) {
 
         log.info("Updating skill with id={} for candidateId={}", skillId, candidateId);
@@ -95,23 +114,18 @@ public class CandidateSkillServiceImpl implements CandidateSkillService {
         getCandidateByIdOrThrow(candidateId);
          var skill = getSkillByIdAndCandidateIdOrThrow(skillId, candidateId);
 
-         String cleanedSkillName = null;
-         if (request.skillName() != null) {
-             cleanedSkillName = stringMapperHelper.clean(request.skillName());
+         var finalSkillName = resolveFinalSkillName(request, skill);
+         var finalSkillType = resolveFinalSkillType(request, skill);
 
-             if (cleanedSkillName == null || cleanedSkillName.isEmpty()) {
-                 throw new BadRequestException("Skill cannot be blank");
+         if (candidateSkillRepository.existsByCandidateIdAndSkillNameIgnoreCaseAndSkillTypeAndIdNot(
+                     candidateId, finalSkillName, finalSkillType, skillId)) {
+                 throw new CandidateSkillAlreadyExistsException("Skill with name " + finalSkillName +
+                         " and type " + finalSkillType + " already exists for candidateId: " + candidateId);
              }
-             if (candidateSkillRepository.existsByCandidateIdAndSkillNameIgnoreCaseAndIdNot(
-                     candidateId, cleanedSkillName, skillId)) {
-                 throw new CandidateSkillAlreadyExistsException("Skill with name " + cleanedSkillName +
-                         " already exists for candidateId: " + candidateId);
-             }
-         }
 
          candidateSkillMapper.updateEntity(request, skill);
 
-         validateUpdatedFields(request, skill);
+         validateRequiredFields(skill);
 
          var updatedSkill = candidateSkillRepository.save(skill);
 
@@ -125,6 +139,7 @@ public class CandidateSkillServiceImpl implements CandidateSkillService {
 
         log.info("Deleting skill with id={} for candidateId={}", skillId, candidateId);
 
+        getCandidateByIdOrThrow(candidateId);
         var skill = getSkillByIdAndCandidateIdOrThrow(skillId, candidateId);
 
         candidateSkillRepository.delete(skill);
@@ -143,14 +158,40 @@ public class CandidateSkillServiceImpl implements CandidateSkillService {
     }
 
     private void validateRequiredFields(CandidateSkill skill) {
-        if (skill.getSkillName() == null || skill.getSkillName().isBlank()) {
+        validateSkillName(skill.getSkillName());
+        validateSkillType(skill.getSkillType());
+
+        if (skill.getLevel() == null) {
+            throw new BadRequestException("Skill level cannot be null");
+        }
+    }
+
+    private void validateSkillName(String skillName) {
+        if (skillName == null || skillName.isBlank()) {
             throw new BadRequestException("Skill name cannot be blank");
         }
     }
 
-    private void validateUpdatedFields(UpdateCandidateSkillRequest request, CandidateSkill skill) {
-        if (request.skillName() != null && (skill.getSkillName() == null || skill.getSkillName().isBlank())) {
-            throw new BadRequestException("Skill name cannot be blank");
+    private void validateSkillType(SkillType skillType) {
+        if (skillType == null) {
+            throw new BadRequestException("Skill type cannot be null");
         }
+    }
+
+    private String resolveFinalSkillName(UpdateCandidateSkillRequest request, CandidateSkill candidateSkill) {
+
+        if (request.skillName() == null) {
+            return candidateSkill.getSkillName();
+        }
+
+        var cleanedSkillName = stringMapperHelper.clean(request.skillName());
+        validateSkillName(cleanedSkillName);
+        return cleanedSkillName;
+    }
+
+    private SkillType resolveFinalSkillType(UpdateCandidateSkillRequest request, CandidateSkill candidateSkill) {
+        var finalSkillType = request.skillType() != null ? request.skillType() : candidateSkill.getSkillType();
+        validateSkillType(finalSkillType);
+        return finalSkillType;
     }
 }
