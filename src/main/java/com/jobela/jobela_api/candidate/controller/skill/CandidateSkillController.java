@@ -5,6 +5,7 @@ import com.jobela.jobela_api.candidate.dto.request.skill.CreateCandidateSkillReq
 import com.jobela.jobela_api.candidate.dto.request.skill.UpdateCandidateSkillRequest;
 import com.jobela.jobela_api.candidate.dto.response.skill.CandidateSkillResponse;
 import com.jobela.jobela_api.candidate.service.skill.CandidateSkillService;
+import com.jobela.jobela_api.common.enums.SkillType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,15 @@ public class CandidateSkillController {
 
         var response = candidateSkillService.getAllSkillsByCandidateId(candidateId);
 
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/type/{skillTyp}")
+    public ResponseEntity<List<CandidateSkillResponse>> getAllSkillsByCandidateIdAndType(
+            @PathVariable Long candidateId,
+            @PathVariable SkillType skillType
+            ) {
+        var response = candidateSkillService.getAllSkillsByCandidateIdAndType(candidateId, skillType);
         return ResponseEntity.ok(response);
     }
 
