@@ -11,8 +11,7 @@ import java.util.List;
 public interface CandidateSkillService {
     CandidateSkillResponse createSkill(Long candidateId, CreateCandidateSkillRequest request);
     CandidateSkillResponse getSkillById(Long candidateId, Long skillId);
-    List<CandidateSkillResponse> getAllSkillsByCandidateId(Long candidateId);
-    List<CandidateSkillResponse> getAllSkillsByCandidateIdAndType(Long candidateId, SkillType skillType);
+    List<CandidateSkillResponse> getSkills(Long candidateId, SkillType skillType);
     CandidateSkillResponse updateSkill(Long candidateId, Long skillId, UpdateCandidateSkillRequest request);
     void deleteSkill(Long candidateId, Long skillId);
 }

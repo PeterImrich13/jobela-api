@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/candidates/{candidateId}/skills")
@@ -29,20 +29,14 @@ public class CandidateSkillController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
+
     @GetMapping
-    public ResponseEntity<List<CandidateSkillResponse>> getAllSkillsByCandidate(@PathVariable Long candidateId) {
-
-        var response = candidateSkillService.getAllSkillsByCandidateId(candidateId);
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/type/{skillTyp}")
-    public ResponseEntity<List<CandidateSkillResponse>> getAllSkillsByCandidateIdAndType(
+    public ResponseEntity<List<CandidateSkillResponse>> getAllSkills(
             @PathVariable Long candidateId,
-            @PathVariable SkillType skillType
+            @RequestParam(name = "type", required = false) SkillType skillType
             ) {
-        var response = candidateSkillService.getAllSkillsByCandidateIdAndType(candidateId, skillType);
+        var response = candidateSkillService.getSkills(candidateId, skillType);
         return ResponseEntity.ok(response);
     }
 

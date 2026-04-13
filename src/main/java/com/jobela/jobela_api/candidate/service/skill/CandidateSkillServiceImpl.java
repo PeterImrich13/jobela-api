@@ -77,29 +77,19 @@ public class CandidateSkillServiceImpl implements CandidateSkillService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<CandidateSkillResponse> getAllSkillsByCandidateId(Long candidateId) {
+    public List<CandidateSkillResponse> getSkills(Long candidateId, SkillType skillType) {
 
-        log.info("Fetching all skills for candidateId={}", candidateId);
-
-        getCandidateByIdOrThrow(candidateId);
-        var skills = candidateSkillRepository.findAllByCandidateId(candidateId);
-
-        return skills.stream()
-                .map(candidateSkillMapper::toResponse)
-                .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<CandidateSkillResponse> getAllSkillsByCandidateIdAndType(
-            Long candidateId, SkillType skillType
-    ) {
-        log.info("Fetching skills for candidateId={} and skillType={}", candidateId, skillType);
+        log.info("Fetching all skills for candidateId={} and skill type={}", candidateId, skillType);
 
         getCandidateByIdOrThrow(candidateId);
-        validateSkillType(skillType);
 
-        var skills = candidateSkillRepository.findAllByCandidateIdAndSkillType(candidateId, skillType);
+        List<CandidateSkill> skills;
+
+        if (skillType != null) {
+            skills = candidateSkillRepository.findAllByCandidateIdAndSkillType(candidateId, skillType);
+        } else {
+            skills = candidateSkillRepository.findAllByCandidateId(candidateId);
+        }
 
         return skills.stream()
                 .map(candidateSkillMapper::toResponse)

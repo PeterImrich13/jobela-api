@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/candidates/{candidateId}/certifications")
+@RequestMapping("/api/v1/candidates/{candidateId}/certifications")
 public class CandidateCertificationController {
 
     private final CandidateCertificationService candidateCertificationService;
