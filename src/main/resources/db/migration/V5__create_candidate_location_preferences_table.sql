@@ -5,6 +5,7 @@ CREATE TABLE candidate_location_preferences (
     country VARCHAR(100),
     region VARCHAR(100),
     created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
 
     CONSTRAINT fk_candidate_candidate_location_preferences_candidate
         FOREIGN KEY (candidate_id)
@@ -13,9 +14,9 @@ CREATE TABLE candidate_location_preferences (
 
     CONSTRAINT chk_candidate_location_preferences_not_empty
         CHECK (
-        city IS NOT NULL OR
-        country IS NOT NULL OR
-        region IS NOT NULL
+            NULLIF(BTRIM(city), '') IS NOT NULL OR
+            NULLIF(BTRIM(country), '') IS NOT NULL OR
+            NULLIF(BTRIM(region), '') IS NOT NULL
         )
 );
 
