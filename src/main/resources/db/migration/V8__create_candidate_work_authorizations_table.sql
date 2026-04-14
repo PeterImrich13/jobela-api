@@ -6,6 +6,8 @@ CREATE TABLE candidate_work_authorizations (
     valid_until DATE,
     sponsorship_required BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+
 
 CONSTRAINT fk_candidate_work_authorizations_candidate
     FOREIGN KEY (candidate_id)
