@@ -48,17 +48,17 @@ public class CandidatePreference {
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
 
     @PrePersist
-    public void PrePersist() {
+    public void prePersist() {
         var now = LocalDateTime.now();
         this.createdAt = now;
-        this.updateAt = now;
+        this.updatedAt = now;
     }
 
     @PreUpdate
-    public void PreUpdate() {
-        this.updateAt = LocalDateTime.now();
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }
