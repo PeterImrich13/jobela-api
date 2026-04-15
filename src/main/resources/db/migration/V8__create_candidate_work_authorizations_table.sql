@@ -9,13 +9,13 @@ CREATE TABLE candidate_work_authorizations (
     updated_at TIMESTAMP NOT NULL,
 
 
-CONSTRAINT fk_candidate_work_authorizations_candidate
-    FOREIGN KEY (candidate_id)
-    REFERENCES candidates(id)
-    ON DELETE CASCADE,
+    CONSTRAINT fk_candidate_work_authorizations_candidate
+        FOREIGN KEY (candidate_id)
+        REFERENCES candidates(id)
+        ON DELETE CASCADE,
 
-CONSTRAINT uk_candidate_work_auth_candidate_country_type
-    UNIQUE (candidate_id, country, authorization_type)
+    CONSTRAINT uk_candidate_work_auth_candidate_country_type
+        UNIQUE (candidate_id, country, authorization_type)
 );
 
 CREATE INDEX idx_candidate_work_candidate_work_authorizations_candidate_id
