@@ -1,6 +1,5 @@
 package com.jobela.jobela_api.candidate.entity;
 
-
 import com.jobela.jobela_api.common.enums.AuthorizationType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -56,8 +55,4 @@ public class CandidateWorkAuthorization {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
-
-
-
 }

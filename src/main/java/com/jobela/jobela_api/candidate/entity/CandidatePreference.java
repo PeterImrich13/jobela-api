@@ -1,6 +1,5 @@
 package com.jobela.jobela_api.candidate.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
