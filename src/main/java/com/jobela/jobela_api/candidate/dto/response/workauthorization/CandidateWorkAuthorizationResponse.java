@@ -1,4 +1,4 @@
-package com.jobela.jobela_api.candidate.dto.response.workAuthorization;
+package com.jobela.jobela_api.candidate.dto.response.workauthorization;
 
 import com.jobela.jobela_api.common.enums.AuthorizationType;
 

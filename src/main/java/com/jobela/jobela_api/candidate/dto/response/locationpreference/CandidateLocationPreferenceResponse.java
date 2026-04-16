@@ -1,4 +1,4 @@
-package com.jobela.jobela_api.candidate.dto.response.locationPreference;
+package com.jobela.jobela_api.candidate.dto.response.locationpreference;
 
 
 import java.time.LocalDateTime;

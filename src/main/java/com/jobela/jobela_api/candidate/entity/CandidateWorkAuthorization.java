@@ -36,7 +36,7 @@ public class CandidateWorkAuthorization {
 
     @Column(name = "sponsorship_required", nullable = false)
     @Builder.Default
-    private Boolean sponsorshipRequired = false;
+    private boolean sponsorshipRequired = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

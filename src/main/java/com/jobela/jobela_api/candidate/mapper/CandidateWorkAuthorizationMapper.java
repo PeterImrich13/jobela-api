@@ -1,8 +1,8 @@
 package com.jobela.jobela_api.candidate.mapper;
 
-import com.jobela.jobela_api.candidate.dto.request.workAuthorization.CreateCandidateWorkAuthorizationRequest;
-import com.jobela.jobela_api.candidate.dto.request.workAuthorization.UpdateCandidateWorkAuthorizationRequest;
-import com.jobela.jobela_api.candidate.dto.response.workAuthorization.CandidateWorkAuthorizationResponse;
+import com.jobela.jobela_api.candidate.dto.request.workauthorization.CreateCandidateWorkAuthorizationRequest;
+import com.jobela.jobela_api.candidate.dto.request.workauthorization.UpdateCandidateWorkAuthorizationRequest;
+import com.jobela.jobela_api.candidate.dto.response.workauthorization.CandidateWorkAuthorizationResponse;
 import com.jobela.jobela_api.candidate.entity.CandidateWorkAuthorization;
 import com.jobela.jobela_api.common.mapper.StringMapperHelper;
 import org.mapstruct.*;
