@@ -1,9 +1,9 @@
-package com.jobela.jobela_api.candidate.service.locationPreference;
+package com.jobela.jobela_api.candidate.service.locationpreference;
 
 
-import com.jobela.jobela_api.candidate.dto.request.locationPreference.CreateCandidateLocationPreferenceRequest;
-import com.jobela.jobela_api.candidate.dto.request.locationPreference.UpdateCandidateLocationPreferenceRequest;
-import com.jobela.jobela_api.candidate.dto.response.locationPreference.CandidateLocationPreferenceResponse;
+import com.jobela.jobela_api.candidate.dto.request.locationpreference.CreateCandidateLocationPreferenceRequest;
+import com.jobela.jobela_api.candidate.dto.request.locationpreference.UpdateCandidateLocationPreferenceRequest;
+import com.jobela.jobela_api.candidate.dto.response.locationpreference.CandidateLocationPreferenceResponse;
 import com.jobela.jobela_api.candidate.entity.Candidate;
 import com.jobela.jobela_api.candidate.entity.CandidateLocationPreference;
 import com.jobela.jobela_api.candidate.mapper.CandidateLocationPreferenceMapper;

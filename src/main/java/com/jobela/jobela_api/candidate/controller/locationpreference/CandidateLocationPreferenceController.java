@@ -1,10 +1,10 @@
-package com.jobela.jobela_api.candidate.controller.locationPreference;
+package com.jobela.jobela_api.candidate.controller.locationpreference;
 
 
-import com.jobela.jobela_api.candidate.dto.request.locationPreference.CreateCandidateLocationPreferenceRequest;
-import com.jobela.jobela_api.candidate.dto.request.locationPreference.UpdateCandidateLocationPreferenceRequest;
-import com.jobela.jobela_api.candidate.dto.response.locationPreference.CandidateLocationPreferenceResponse;
-import com.jobela.jobela_api.candidate.service.locationPreference.CandidateLocationPreferenceService;
+import com.jobela.jobela_api.candidate.dto.request.locationpreference.CreateCandidateLocationPreferenceRequest;
+import com.jobela.jobela_api.candidate.dto.request.locationpreference.UpdateCandidateLocationPreferenceRequest;
+import com.jobela.jobela_api.candidate.dto.response.locationpreference.CandidateLocationPreferenceResponse;
+import com.jobela.jobela_api.candidate.service.locationpreference.CandidateLocationPreferenceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -49,7 +49,7 @@ public class CandidateWorkExperience {
 
     @Column(name = "currently_working", nullable = false)
     @Builder.Default
-    private Boolean currentlyWorking = false;
+    private boolean currentlyWorking = false;
 
     @Column(length = 4000)
     private String description;

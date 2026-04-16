@@ -1,4 +1,4 @@
-package com.jobela.jobela_api.candidate.dto.request.locationPreference;
+package com.jobela.jobela_api.candidate.dto.request.locationpreference;
 
 import jakarta.validation.constraints.Size;
 

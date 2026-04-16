@@ -21,6 +21,13 @@ CREATE TABLE candidate_work_experiences (
     CONSTRAINT chk_candidate_work_experiences_dates
         CHECK (
         end_date IS NULL OR start_date <= end_date
+        ),
+
+    CONSTRAINT chk_candidate_work_experiences_current_work
+        CHECK (
+            (currently_working = TRUE AND end_date IS NULL)
+            OR
+            (currently_working = FALSE AND end_date IS NOT NULL)
         )
 );
 
