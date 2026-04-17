@@ -10,7 +10,7 @@ import com.jobela.jobela_api.candidate.repository.CandidateEducationRepository;
 import com.jobela.jobela_api.candidate.repository.CandidateRepository;
 import com.jobela.jobela_api.common.exception.BadRequestException;
 import com.jobela.jobela_api.common.exception.CandidateEducationAlreadyExistsException;
-import com.jobela.jobela_api.common.exception.CandidateEducationNotFound;
+import com.jobela.jobela_api.common.exception.CandidateEducationNotFoundException;
 import com.jobela.jobela_api.common.exception.CandidateNotFoundException;
 import com.jobela.jobela_api.common.mapper.StringMapperHelper;
 import com.jobela.jobela_api.candidate.entity.Candidate;
@@ -149,7 +149,7 @@ public class CandidateEducationServiceImpl implements CandidateEducationService 
 
     private CandidateEducation getCandidateEducationByIdOrThrow(Long candidateId, Long candidateEducationId) {
         return candidateEducationRepository.findByIdAndCandidateId(candidateEducationId, candidateId)
-                .orElseThrow(() -> new CandidateEducationNotFound("Candidate education with id " + candidateEducationId +
+                .orElseThrow(() -> new CandidateEducationNotFoundException("Candidate education with id " + candidateEducationId +
                         " not found for candidateId " + candidateEducationId));
     }
     private Candidate getCandidateByIdOrThrow(Long candidateId) {
