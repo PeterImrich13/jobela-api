@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -52,7 +52,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/password")
-    public ResponseEntity<Void> changePassword(@PathVariable Long userId, @RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<Void> changePassword(@PathVariable Long userId, @Valid @RequestBody ChangePasswordRequest request) {
         userService.changePassword(userId, request);
         return ResponseEntity.noContent().build();
     }
