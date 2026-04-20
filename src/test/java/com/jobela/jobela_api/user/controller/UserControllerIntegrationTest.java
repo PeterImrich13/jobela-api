@@ -54,7 +54,7 @@ public class UserControllerIntegrationTest extends PostgresTestContainerConfig {
                 UserRole.CANDIDATE
         );
 
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -76,7 +76,7 @@ public class UserControllerIntegrationTest extends PostgresTestContainerConfig {
                         .build()
         );
 
-        mockMvc.perform(get("/api/users/{userId}", savedUser.getId()))
+        mockMvc.perform(get("/api/v1/users/{userId}", savedUser.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedUser.getId()))
                 .andExpect(jsonPath("$.email").value("test@mail.com"))
@@ -103,7 +103,7 @@ public class UserControllerIntegrationTest extends PostgresTestContainerConfig {
                         .build()
         );
 
-        mockMvc.perform(get("/api/users")
+        mockMvc.perform(get("/api/v1/users")
                         .param("page", "0")
                         .param("size", "10")
                         .param("sortBy", "id")
@@ -127,7 +127,7 @@ public class UserControllerIntegrationTest extends PostgresTestContainerConfig {
                         .build()
     );
 
-        mockMvc.perform(patch("/api/users/{userId}/deactivate", savedUser.getId()))
+        mockMvc.perform(patch("/api/v1/users/{userId}/deactivate", savedUser.getId()))
                 .andExpect(status().isNoContent());
 
         var updatedUser = userRepository.findById(savedUser.getId()).orElseThrow();
@@ -147,7 +147,7 @@ public class UserControllerIntegrationTest extends PostgresTestContainerConfig {
         savedUser.setActive(false);
         userRepository.save(savedUser);
 
-        mockMvc.perform(patch("/api/users/{userId}/activate", savedUser.getId()))
+        mockMvc.perform(patch("/api/v1/users/{userId}/activate", savedUser.getId()))
                 .andExpect(status().isNoContent());
 
         var updatedUser = userRepository.findById(savedUser.getId()).orElseThrow();
@@ -167,7 +167,7 @@ public class UserControllerIntegrationTest extends PostgresTestContainerConfig {
 
         var request = new  UpdateUserRequest("new@mail.com");
 
-        mockMvc.perform(patch("/api/users/{userId}", savedUser.getId())
+        mockMvc.perform(patch("/api/v1/users/{userId}", savedUser.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -195,7 +195,7 @@ public class UserControllerIntegrationTest extends PostgresTestContainerConfig {
                 "newPassword123",
                 "newPassword123");
 
-        mockMvc.perform(patch("/api/users/{userId}/password", savedUser.getId())
+        mockMvc.perform(patch("/api/v1/users/{userId}/password", savedUser.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
@@ -215,7 +215,7 @@ public class UserControllerIntegrationTest extends PostgresTestContainerConfig {
                         .build()
         );
 
-        mockMvc.perform(delete("/api/users/{userId}", savedUser.getId()))
+        mockMvc.perform(delete("/api/v1/users/{userId}", savedUser.getId()))
                 .andExpect(status().isNoContent());
 
         assertThat(userRepository.findById(savedUser.getId())).isEmpty();
@@ -223,7 +223,7 @@ public class UserControllerIntegrationTest extends PostgresTestContainerConfig {
 
     @Test
     void getUserById_shouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
-        mockMvc.perform(get("/api/users/{userId}", 999L))
+        mockMvc.perform(get("/api/v1/users/{userId}", 999L))
                 .andExpect(status().isNotFound());
     }
 }
