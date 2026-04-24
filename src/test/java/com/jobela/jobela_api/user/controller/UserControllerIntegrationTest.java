@@ -2,13 +2,11 @@ package com.jobela.jobela_api.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jobela.jobela_api.common.enums.UserRole;
-import com.jobela.jobela_api.config.PostgresTestContainerConfig;
+import com.jobela.jobela_api.config.IntegrationTestBase;
 import com.jobela.jobela_api.user.dto.request.ChangePasswordRequest;
 import com.jobela.jobela_api.user.dto.request.CreateUserRequest;
 import com.jobela.jobela_api.user.dto.request.UpdateUserRequest;
 import com.jobela.jobela_api.user.entity.User;
-import com.jobela.jobela_api.user.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,21 +28,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Testcontainers
 @ActiveProfiles("test")
-public class UserControllerIntegrationTest extends PostgresTestContainerConfig {
+public class UserControllerIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @BeforeEach
-    void setUp() {
-        userRepository.deleteAll();
-    }
 
     @Test
     void createUser_shouldReturnCreatedUser() throws Exception {

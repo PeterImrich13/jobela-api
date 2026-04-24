@@ -4,12 +4,10 @@ package com.jobela.jobela_api.candidate.controller.candidate;
 import com.jobela.jobela_api.candidate.dto.request.candidate.CreateCandidateRequest;
 import com.jobela.jobela_api.candidate.dto.request.candidate.UpdateCandidateRequest;
 import com.jobela.jobela_api.candidate.entity.Candidate;
-import com.jobela.jobela_api.candidate.repository.CandidateRepository;
 import com.jobela.jobela_api.common.enums.Gender;
 import com.jobela.jobela_api.common.enums.UserRole;
+import com.jobela.jobela_api.config.IntegrationTestBase;
 import com.jobela.jobela_api.user.entity.User;
-import com.jobela.jobela_api.user.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,25 +31,13 @@ import java.time.LocalDate;
 @Testcontainers
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class CandidateControllerIntegrationTest {
+public class CandidateControllerIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private CandidateRepository candidateRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @BeforeEach
-    void setUp() {
-        candidateRepository.deleteAll();
-        userRepository.deleteAll();
-    }
 
     @Test
     void createCandidate_shouldReturnCreatedCandidate() throws Exception {
