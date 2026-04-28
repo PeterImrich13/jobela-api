@@ -11,3 +11,9 @@ spring:
 
   flyway:
     enabled: false
+
+application:
+  security:
+    jwt:
+      secret-key: VXp4Y3dLWlFYb0VwYk9TRHlSTmVFd2p0VlhHT2xpb21oQnhEZEtEbXlmTGdGakJ3Y2h6TllDY2hKbmZsaA
+      expiration: 86400000

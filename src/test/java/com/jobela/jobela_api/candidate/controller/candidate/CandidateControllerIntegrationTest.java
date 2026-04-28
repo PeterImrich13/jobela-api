@@ -7,7 +7,6 @@ import com.jobela.jobela_api.candidate.entity.Candidate;
 import com.jobela.jobela_api.common.enums.Gender;
 import com.jobela.jobela_api.common.enums.UserRole;
 import com.jobela.jobela_api.config.IntegrationTestBase;
-import com.jobela.jobela_api.user.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -41,13 +40,8 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
 
     @Test
     void createCandidate_shouldReturnCreatedCandidate() throws Exception {
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        var token = bearerTokenForUser(user);
 
         var request = new CreateCandidateRequest(
                 null, null, "Peter", "Imrich", Gender.MALE, null, "Zurich",
@@ -55,6 +49,7 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
                 "Koch", "Motivierte Koch", null);
 
         mockMvc.perform(post("/api/v1/candidates/user/{userId}", user.getId())
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -67,21 +62,17 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
                 .andExpect(jsonPath("$.headline").value("Koch"));
 
         assertThat(candidateRepository.findAll()).hasSize(1);
-        var seavedCandidate = candidateRepository.findAll().getFirst();
-        assertThat(seavedCandidate.getUser().getId()).isEqualTo(user.getId());
-        assertThat(seavedCandidate.getFirstName()).isEqualTo("Peter");
-        assertThat(seavedCandidate.getCity()).isEqualTo("Zurich");
+        var savedCandidate = candidateRepository.findAll().getFirst();
+        assertThat(savedCandidate.getUser().getId()).isEqualTo(user.getId());
+        assertThat(savedCandidate.getFirstName()).isEqualTo("Peter");
+        assertThat(savedCandidate.getCity()).isEqualTo("Zurich");
     }
 
     @Test
     void getCandidateById_shouldReturnCandidate() throws Exception {
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        var token = bearerTokenForUser(user);
+
 
         var candidate = candidateRepository.save(
                 Candidate.builder().
@@ -94,7 +85,8 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
                         .build()
         );
 
-        mockMvc.perform(get("/api/v1/candidates/{candidateId}", candidate.getId()))
+        mockMvc.perform(get("/api/v1/candidates/{candidateId}", candidate.getId())
+                        .header("Authorization",token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(candidate.getId()))
                 .andExpect(jsonPath("$.userId").value(user.getId()))
@@ -105,14 +97,8 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
 
     @Test
     void getCandidateByUserId_shouldReturnCandidate() throws Exception{
-
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        var token = bearerTokenForUser(user);
 
         candidateRepository.save(
                 Candidate.builder()
@@ -124,7 +110,8 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
                         .build()
         );
 
-        mockMvc.perform(get("/api/v1/candidates/user/{userId}", user.getId()))
+        mockMvc.perform(get("/api/v1/candidates/user/{userId}", user.getId())
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("Peter"))
                 .andExpect(jsonPath("$.lastName").value("Imrich"))
@@ -133,13 +120,8 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
 
     @Test
     void updateCandidate_shouldUpdateCandidate() throws Exception {
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        var token = bearerTokenForUser(user);
 
         var candidate = candidateRepository.save(
                 Candidate.builder()
@@ -156,6 +138,7 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
                 "New headline", null, null);
 
         mockMvc.perform(patch("/api/v1/candidates/{candidateId}", candidate.getId())
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -171,13 +154,8 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
 
     @Test
     void deleteCandidate_shouldDeleteCandidate() throws Exception {
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        var token = bearerTokenForUser(user);
 
         var candidate = candidateRepository.save(
                 Candidate.builder()
@@ -187,7 +165,8 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
                         .build()
         );
 
-        mockMvc.perform(delete("/api/v1/candidates/{candidateId}", candidate.getId()))
+        mockMvc.perform(delete("/api/v1/candidates/{candidateId}", candidate.getId())
+                        .header("Authorization", token))
                 .andExpect(status().isNoContent());
 
         assertThat(candidateRepository.findById(candidate.getId())).isEmpty();
@@ -195,7 +174,9 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
 
     @Test
     void getCandidateById_shouldReturnNotFoundWhenCandidateDoesNotExist() throws Exception {
-        mockMvc.perform(get("/api/v1/candidates/{candidateId}", 999L))
-                .andExpect(status().isNotFound());
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        mockMvc.perform(get("/api/v1/candidates/{candidateId}", 999L)
+                        .header("Authorization", bearerTokenForUser(user)))
+                .andExpect(status().isForbidden());
     }
 }
