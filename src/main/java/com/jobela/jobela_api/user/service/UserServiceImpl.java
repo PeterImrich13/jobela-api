@@ -13,14 +13,14 @@ import com.jobela.jobela_api.user.entity.User;
 import com.jobela.jobela_api.common.exception.BadRequestException;
 import com.jobela.jobela_api.user.mapper.UserMapper;
 import com.jobela.jobela_api.user.repository.UserRepository;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Service
@@ -32,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final StringMapperHelper stringMapperHelper;
+    private final PasswordEncoder passwordEncoder;
 
    @Override
     public UserResponse createUser(CreateUserRequest request) {
@@ -48,6 +49,7 @@ public class UserServiceImpl implements UserService {
        }
 
        var user = userMapper.toEntity(request);
+       user.setPassword(passwordEncoder.encode(request.password()));
 
        var savedUser = userRepository.save(user);
 
@@ -137,15 +139,15 @@ public class UserServiceImpl implements UserService {
 
        var user = getUserOrThrow(userId);
 
-       if (!user.getPassword().equals(request.currentPassword())) {
+       if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
            log.warn("Password change failed, current password mismatch for user with id={}", userId);
            throw new InvalidPasswordException("Current password is incorrect");
        }
        if (!request.newPassword().equals(request.confirmPassword())) {
-           log.warn("Password, change failed, new password and confirm password do not match for user, id={}", userId);
+           log.warn("Password, change failed, new password and confirm password do not match for user id={}", userId);
            throw new InvalidPasswordException("New password and confirm password do not match");
        }
-       user.setPassword(request.newPassword());
+       user.setPassword(passwordEncoder.encode(request.newPassword()));
        userRepository.save(user);
 
        log.info("Password changed successfully for user with id={}", userId);

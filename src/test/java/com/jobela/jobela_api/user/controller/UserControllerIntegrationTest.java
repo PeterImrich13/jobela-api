@@ -45,6 +45,7 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
         );
 
         mockMvc.perform(post("/api/v1/users")
+                        .header("Authorization", bearerToken(UserRole.ADMIN))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -52,7 +53,7 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
                 .andExpect(jsonPath("$.role").value("CANDIDATE"))
                 .andExpect(jsonPath("$.active").value(true));
 
-        assertThat(userRepository.findAll()).hasSize(1);
+        assertThat(userRepository.existsByEmailIgnoreCase("test@mail.com")).isTrue();
     }
 
     @Test
@@ -66,7 +67,8 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
                         .build()
         );
 
-        mockMvc.perform(get("/api/v1/users/{userId}", savedUser.getId()))
+        mockMvc.perform(get("/api/v1/users/{userId}", savedUser.getId())
+                        .header("Authorization", bearerToken(UserRole.ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedUser.getId()))
                 .andExpect(jsonPath("$.email").value("test@mail.com"))
@@ -75,6 +77,9 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
 
     @Test
     void getAllUsers_shouldReturnPageUsers() throws Exception {
+
+        var token = bearerToken(UserRole.ADMIN);
+
         userRepository.save(
                 User.builder()
                         .email("first@mail.com")
@@ -94,16 +99,17 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
         );
 
         mockMvc.perform(get("/api/v1/users")
+                        .header("Authorization", token)
                         .param("page", "0")
                         .param("size", "10")
                         .param("sortBy", "id")
                         .param("direction", "asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.length()").value(2))
-                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.content.length()").value(3))
+                .andExpect(jsonPath("$.totalElements").value(3))
                 .andExpect(jsonPath("$.totalPages").value(1))
-                .andExpect(jsonPath("$.content[0].email").value("first@mail.com"))
-                .andExpect(jsonPath("$.content[1].email").value("second@mail.com"));
+                .andExpect(jsonPath("$.content[1].email").value("first@mail.com"))
+                .andExpect(jsonPath("$.content[2].email").value("second@mail.com"));
     }
 
     @Test
@@ -117,7 +123,8 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
                         .build()
     );
 
-        mockMvc.perform(patch("/api/v1/users/{userId}/deactivate", savedUser.getId()))
+        mockMvc.perform(patch("/api/v1/users/{userId}/deactivate", savedUser.getId())
+                        .header("Authorization", bearerToken(UserRole.ADMIN)))
                 .andExpect(status().isNoContent());
 
         var updatedUser = userRepository.findById(savedUser.getId()).orElseThrow();
@@ -137,7 +144,8 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
         savedUser.setActive(false);
         userRepository.save(savedUser);
 
-        mockMvc.perform(patch("/api/v1/users/{userId}/activate", savedUser.getId()))
+        mockMvc.perform(patch("/api/v1/users/{userId}/activate", savedUser.getId())
+                        .header("Authorization", bearerToken(UserRole.ADMIN)))
                 .andExpect(status().isNoContent());
 
         var updatedUser = userRepository.findById(savedUser.getId()).orElseThrow();
@@ -158,6 +166,7 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
         var request = new  UpdateUserRequest("new@mail.com");
 
         mockMvc.perform(patch("/api/v1/users/{userId}", savedUser.getId())
+                        .header("Authorization", bearerToken(UserRole.ADMIN))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -174,7 +183,7 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
         var savedUser = userRepository.save(
                 User.builder()
                         .email("test@mail.com")
-                        .password("oldPassword123")
+                        .password(passwordEncoder.encode("oldPassword123"))
                         .role(UserRole.CANDIDATE)
                         .active(true)
                         .build()
@@ -186,12 +195,13 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
                 "newPassword123");
 
         mockMvc.perform(patch("/api/v1/users/{userId}/password", savedUser.getId())
+                        .header("Authorization", bearerToken(UserRole.ADMIN))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent());
 
         var updatedUser = userRepository.findById(savedUser.getId()).orElseThrow();
-        assertThat(updatedUser.getPassword()).isEqualTo("newPassword123");
+        assertThat(passwordEncoder.matches("newPassword123", updatedUser.getPassword())).isTrue();
     }
 
     @Test
@@ -205,7 +215,8 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
                         .build()
         );
 
-        mockMvc.perform(delete("/api/v1/users/{userId}", savedUser.getId()))
+        mockMvc.perform(delete("/api/v1/users/{userId}", savedUser.getId())
+                        .header("Authorization", bearerToken(UserRole.ADMIN)))
                 .andExpect(status().isNoContent());
 
         assertThat(userRepository.findById(savedUser.getId())).isEmpty();
@@ -213,7 +224,8 @@ public class UserControllerIntegrationTest extends IntegrationTestBase {
 
     @Test
     void getUserById_shouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
-        mockMvc.perform(get("/api/v1/users/{userId}", 999L))
+        mockMvc.perform(get("/api/v1/users/{userId}", 999L)
+                        .header("Authorization", bearerToken(UserRole.ADMIN)))
                 .andExpect(status().isNotFound());
     }
 }

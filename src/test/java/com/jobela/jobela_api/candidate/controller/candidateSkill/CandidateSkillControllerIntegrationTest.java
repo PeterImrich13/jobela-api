@@ -9,7 +9,6 @@ import com.jobela.jobela_api.common.enums.SkillLevel;
 import com.jobela.jobela_api.common.enums.SkillType;
 import com.jobela.jobela_api.common.enums.UserRole;
 import com.jobela.jobela_api.config.IntegrationTestBase;
-import com.jobela.jobela_api.user.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -40,13 +40,8 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
 
     @Test
     void createSkill_shouldCreateSkill() throws Exception {
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        var token = bearerTokenForUser(user);
 
         var candidate = candidateRepository.save(
                 Candidate.builder()
@@ -59,6 +54,7 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
         var request = new CreateCandidateSkillRequest("Java", SkillType.HARD, SkillLevel.ADVANCED);
 
         mockMvc.perform(post("/api/v1/candidates/{candidateId}/skills", candidate.getId())
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -72,54 +68,8 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
 
     @Test
     void getSkills_shouldReturnAllSkills() throws Exception {
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
-
-        var candidate = candidateRepository.save(
-                Candidate.builder()
-                        .user(user)
-                        .firstName("Peter")
-                        .lastName("Imrich")
-                        .build()
-        );
-
-        candidateSkillRepository.save(
-                CandidateSkill.builder()
-                        .candidate(candidate)
-                        .skillName("Java")
-                        .skillType(SkillType.HARD)
-                        .level(SkillLevel.ADVANCED)
-                        .build()
-        );
-
-        candidateSkillRepository.save(
-                CandidateSkill.builder()
-                        .candidate(candidate)
-                        .skillName("Communication")
-                        .skillType(SkillType.SOFT)
-                        .level(SkillLevel.INTERMEDIATE)
-                        .build()
-        );
-
-        mockMvc.perform(get("/api/v1/candidates/{candidateId}/skills", candidate.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
-    }
-
-    @Test
-    void getSkills_shouldFilterByType() throws Exception {
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        var token = bearerTokenForUser(user);
 
         var candidate = candidateRepository.save(
                 Candidate.builder()
@@ -148,6 +98,44 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
         );
 
         mockMvc.perform(get("/api/v1/candidates/{candidateId}/skills", candidate.getId())
+                        .header("Authorization", token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    void getSkills_shouldFilterByType() throws Exception {
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        var token = bearerTokenForUser(user);
+
+        var candidate = candidateRepository.save(
+                Candidate.builder()
+                        .user(user)
+                        .firstName("Peter")
+                        .lastName("Imrich")
+                        .build()
+        );
+
+        candidateSkillRepository.save(
+                CandidateSkill.builder()
+                        .candidate(candidate)
+                        .skillName("Java")
+                        .skillType(SkillType.HARD)
+                        .level(SkillLevel.ADVANCED)
+                        .build()
+        );
+
+        candidateSkillRepository.save(
+                CandidateSkill.builder()
+                        .candidate(candidate)
+                        .skillName("Communication")
+                        .skillType(SkillType.SOFT)
+                        .level(SkillLevel.INTERMEDIATE)
+                        .build()
+        );
+
+        mockMvc.perform(get("/api/v1/candidates/{candidateId}/skills", candidate.getId())
+                        .header("Authorization", token)
                         .param("type", "HARD"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
@@ -157,13 +145,8 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
 
     @Test
     void getSkillById_shouldReturnSkill() throws Exception {
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        var token = bearerTokenForUser(user);
 
         var candidate = candidateRepository.save(
                 Candidate.builder()
@@ -183,7 +166,8 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
         );
 
         mockMvc.perform(get("/api/v1/candidates/{candidateId}/skills/{skillId}",
-                candidate.getId(), skill.getId()))
+                candidate.getId(), skill.getId())
+                        .header("Authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(skill.getId()))
                 .andExpect(jsonPath("$.candidateId").value(candidate.getId()))
@@ -194,15 +178,10 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
 
         @Test
     void updateSkill_shouldUpdateSkill() throws Exception {
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+            var token = bearerTokenForUser(user);
 
-        var candidate = candidateRepository.save(
+            var candidate = candidateRepository.save(
                 Candidate.builder()
                         .user(user)
                         .firstName("Peter")
@@ -224,6 +203,7 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
 
         mockMvc.perform(patch("/api/v1/candidates/{candidateId}/skills/{skillId}",
                 candidate.getId(), skill.getId())
+                        .header("Authorization", token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -238,13 +218,9 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
 
     @Test
     void deleteSkill_shouldDeleteSkill() throws  Exception {
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        var token = bearerTokenForUser(user);
+
 
         var candidate = candidateRepository.save(
                 Candidate.builder()
@@ -264,7 +240,8 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
         );
 
         mockMvc.perform(delete("/api/v1/candidates/{candidateId}/skills/{skillId}",
-                candidate.getId(), skill.getId()))
+                candidate.getId(), skill.getId())
+                        .header("Authorization", token))
                 .andExpect(status().isNoContent());
 
         assertThat(candidateSkillRepository.findById(skill.getId())).isEmpty();
@@ -272,13 +249,8 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
 
     @Test
     void getSkillById_shouldReturnNotFoundWhenSkillDoesNotExist() throws Exception {
-        var user = userRepository.save(
-                User.builder()
-                        .email("candidate@mail.com")
-                        .password("password123")
-                        .role(UserRole.CANDIDATE)
-                        .build()
-        );
+        var user = createAuthenticatedUser(UserRole.CANDIDATE);
+        var token = bearerTokenForUser(user);
 
         var candidate = candidateRepository.save(
                 Candidate.builder()
@@ -289,7 +261,8 @@ public class CandidateSkillControllerIntegrationTest extends IntegrationTestBase
         );
 
         mockMvc.perform(get("/api/v1/candidates/{candidateId}/skills/{skillId}",
-                candidate.getId(), 999L))
+                candidate.getId(), 999L)
+                        .header("Authorization", token))
                 .andExpect(status().isNotFound());
     }
  }

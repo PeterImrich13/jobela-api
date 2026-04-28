@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -37,6 +38,9 @@ class UserServiceImplTest {
     @Mock
     private StringMapperHelper stringMapperHelper;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -54,6 +58,7 @@ class UserServiceImplTest {
                 .build();
 
         when(userMapper.toEntity(request)).thenReturn(user);
+        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
         when(userRepository.save(user)).thenReturn(user);
         when(userMapper.toResponse(user)).thenReturn(
                 new UserResponse(1L, "test@mail.com", UserRole.CANDIDATE, true, null)
@@ -62,6 +67,7 @@ class UserServiceImplTest {
         var response = userService.createUser(request);
 
         assertThat(response.email()).isEqualTo("test@mail.com");
+        assertThat(user.getPassword()).isEqualTo("encodedPassword");
         verify(userRepository).save(user);
     }
 
@@ -113,16 +119,18 @@ class UserServiceImplTest {
     void changePassword_shouldChangePasswordSuccessfully() {
         var user = User.builder()
                 .id(1L)
-                .password("oldPass")
+                .password("encodedOldPassword")
                 .build();
 
         var request = new ChangePasswordRequest("oldPass", "newPass123", "newPass123");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("oldPass", "encodedOldPassword")).thenReturn(true);
+        when(passwordEncoder.encode("newPass123")).thenReturn("encodedNewPassword");
 
         userService.changePassword(1L, request);
 
-        assertThat(user.getPassword()).isEqualTo("newPass123");
+        assertThat(user.getPassword()).isEqualTo("encodedNewPassword");
         verify(userRepository).save(user);
     }
 
@@ -130,12 +138,13 @@ class UserServiceImplTest {
     void changedPassword_shouldThrownWhenCurrentPasswordIsWrong() {
         var user = User.builder()
                 .id(1L)
-                .password("oldPass")
+                .password("encodedOldPassword")
                 .build();
 
         var request = new ChangePasswordRequest("wrong", "newPass123", "newPass123");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrong", "encodedOldPassword")).thenReturn(false);
 
         assertThatThrownBy(() -> userService.changePassword(1L, request))
                 .isInstanceOf(InvalidPasswordException.class);
