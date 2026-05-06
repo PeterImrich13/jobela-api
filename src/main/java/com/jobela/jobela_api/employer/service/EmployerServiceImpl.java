@@ -3,6 +3,7 @@ package com.jobela.jobela_api.employer.service;
 import com.jobela.jobela_api.common.exception.BadRequestException;
 import com.jobela.jobela_api.common.exception.EmployerAlreadyExistsException;
 import com.jobela.jobela_api.common.exception.EmployerNotFoundException;
+import com.jobela.jobela_api.common.exception.UserNotFoundException;
 import com.jobela.jobela_api.employer.dto.request.CreateEmployerRequest;
 import com.jobela.jobela_api.employer.dto.request.UpdateEmployerRequest;
 import com.jobela.jobela_api.employer.dto.response.EmployerResponse;
@@ -113,7 +114,7 @@ public class EmployerServiceImpl implements EmployerService {
 
     private User getUserOrThrow(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found for userId: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("User not found for userId: " + userId));
     }
 
     private Employer getEmployerOrThrow(Long employerId) {

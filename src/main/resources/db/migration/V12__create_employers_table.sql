@@ -12,7 +12,7 @@ CREATE TABLE employers(
     street VARCHAR(100),
     street_number VARCHAR(10),
     profile_photo VARCHAR(500),
-    profile_visible BOOLEAN DEFAULT FALSE,
+    profile_visible BOOLEAN DEFAULT TRUE,
     verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,

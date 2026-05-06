@@ -37,6 +37,8 @@ public class CandidateController {
     }
 
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('CANDIDATE') " +
+            "and @candidateSecurity.isCurrentUser(#userId, authentication))")
     public ResponseEntity<CandidateResponse> getCandidateByUserId(@PathVariable Long userId) {
 
         var response = candidateService.getCandidateByUserId(userId);

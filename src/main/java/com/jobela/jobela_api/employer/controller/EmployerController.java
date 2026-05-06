@@ -21,8 +21,8 @@ public class EmployerController {
 
     private final EmployerService employerService;
 
-    @PreAuthorize("hasRole('ADMIN') or @employerSecurity.isCurrentUser(#userId, authentication)")
-    @PostMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('EMPLOYER') " +
+            "and @employerSecurity.isCurrentUser(#userId, authentication))")    @PostMapping("/user/{userId}")
     public ResponseEntity<EmployerResponse> createEmployer(
             @PathVariable Long userId, @Valid @RequestBody CreateEmployerRequest request
             ) {
@@ -31,7 +31,8 @@ public class EmployerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYER', 'CANDIDATE')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('EMPLOYER') " +
+            "and @employerSecurity.isOwner(#employerId, authentication))")
     @GetMapping("/{employerId}")
     public ResponseEntity<EmployerResponse> getEmployerById(@PathVariable Long employerId) {
         var response = employerService.getEmployerById(employerId);
@@ -39,7 +40,8 @@ public class EmployerController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYER', 'CANDIDATE')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('EMPLOYER') " +
+            "and @employerSecurity.isCurrentUser(#userId, authentication))")
     @GetMapping("/user/{userId}")
     public ResponseEntity<EmployerResponse> getEmployerByUserId(@PathVariable Long userId) {
         var response = employerService.getEmployerByUserId(userId);
@@ -47,7 +49,7 @@ public class EmployerController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYER', 'CANDIDATE')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<EmployerResponse>> getAllEmployers() {
         var response = employerService.getAllEmployers();
