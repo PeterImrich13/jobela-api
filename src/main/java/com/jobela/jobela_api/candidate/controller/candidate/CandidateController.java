@@ -1,6 +1,5 @@
 package com.jobela.jobela_api.candidate.controller.candidate;
 
-
 import com.jobela.jobela_api.candidate.dto.request.candidate.CreateCandidateRequest;
 import com.jobela.jobela_api.candidate.dto.request.candidate.UpdateCandidateRequest;
 import com.jobela.jobela_api.candidate.dto.response.candidate.CandidateResponse;

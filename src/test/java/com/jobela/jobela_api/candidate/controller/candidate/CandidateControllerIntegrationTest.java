@@ -128,14 +128,14 @@ public class CandidateControllerIntegrationTest extends IntegrationTestBase {
                         .user(user)
                         .firstName("Peter")
                         .lastName("Imrich")
-                        .city("Apenzell")
+                        .city("Appenzell")
                         .headline("Old headline")
                         .build()
         );
 
         var request = new UpdateCandidateRequest(null, null, "Peter", "Imrich",
                 null, null, "Zurich", null, null, null,
-                "New headline", null, null);
+                "New headline", null, null, null);
 
         mockMvc.perform(patch("/api/v1/candidates/{candidateId}", candidate.getId())
                         .header("Authorization", token)

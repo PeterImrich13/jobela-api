@@ -9,7 +9,6 @@ import com.jobela.jobela_api.user.entity.User;
 import com.jobela.jobela_api.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.UUID;

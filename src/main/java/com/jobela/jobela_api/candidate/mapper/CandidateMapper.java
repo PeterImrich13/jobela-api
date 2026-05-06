@@ -13,6 +13,7 @@ public interface CandidateMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "profileVisible", ignore = true)
     @Mapping(target = "candidatePreference", ignore = true)
     @Mapping(target = "candidateWorkExperiences", ignore = true)
     @Mapping(target = "candidateEducations", ignore = true)
@@ -44,6 +45,7 @@ public interface CandidateMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "profileVisible", ignore = true)
     @Mapping(target = "candidatePreference", ignore = true)
     @Mapping(target = "candidateWorkExperiences", ignore = true)
     @Mapping(target = "candidateEducations", ignore = true)

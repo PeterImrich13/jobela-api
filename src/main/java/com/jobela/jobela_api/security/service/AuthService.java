@@ -1,5 +1,7 @@
 package com.jobela.jobela_api.security.service;
 
+import com.jobela.jobela_api.common.enums.UserRole;
+import com.jobela.jobela_api.common.exception.BadRequestException;
 import com.jobela.jobela_api.common.exception.UserAlreadyExistsException;
 import com.jobela.jobela_api.common.mapper.StringMapperHelper;
 import com.jobela.jobela_api.security.dto.AuthResponse;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +34,10 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         var cleanedEmail = stringMapperHelper.clean(request.email());
+
+        if (request.role() != UserRole.CANDIDATE && request.role() != UserRole.EMPLOYER) {
+            throw new BadRequestException("Invalid registration role");
+        }
 
         log.info("Registering user with email={}", cleanedEmail);
 
@@ -64,7 +71,8 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(cleanedEmail, request.password())
         );
 
-        var user = userRepository.findByEmailIgnoreCase(cleanedEmail).orElseThrow();
+        var user = userRepository.findByEmailIgnoreCase(cleanedEmail).
+                orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + cleanedEmail));
 
         var token = jwtService.generateToken(new CustomUserDetails(user));
 
