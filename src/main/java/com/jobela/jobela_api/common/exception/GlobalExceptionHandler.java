@@ -249,6 +249,8 @@ public class GlobalExceptionHandler {
             AuthorizationDeniedException ex,
             HttpServletRequest request
     ) {
+        log.warn("Access denied to {}: {}", request.getRequestURI(), ex.getMessage());
+
         var error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.FORBIDDEN.value(),

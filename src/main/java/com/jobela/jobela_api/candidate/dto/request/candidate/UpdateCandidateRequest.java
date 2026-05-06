@@ -44,6 +44,8 @@ public record UpdateCandidateRequest(
         String summary,
 
         @Size(max = 500)
-        String profilePhotoUrl
+        String profilePhotoUrl,
+
+        Boolean profileVisible
 ) {
 }

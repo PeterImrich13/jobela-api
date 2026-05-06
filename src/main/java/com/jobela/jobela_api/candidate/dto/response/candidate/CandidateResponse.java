@@ -21,6 +21,7 @@ public record CandidateResponse(
         String headline,
         String summary,
         String profilePhotoUrl,
+        Boolean profileVisible,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

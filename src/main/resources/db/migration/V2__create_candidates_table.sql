@@ -14,6 +14,7 @@ CREATE TABLE candidates (
     headline VARCHAR(150),
     summary TEXT,
     profile_photo_url TEXT,
+    profile_visible BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
 

@@ -71,7 +71,7 @@ public class CandidateServiceImplTest {
 
         var response = new CandidateResponse(10L, 1L, null, null, "Peter",
                 "Imrich", Gender.MALE, null, null, null, null, null,
-                null, null, null, null, null
+                null, null, null, null, null, null
         );
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -178,11 +178,11 @@ public class CandidateServiceImplTest {
 
         var request = new UpdateCandidateRequest(null, null, "Peter", "Imrich",
                 null, null, "Zurich", null, null, null, null,
-                null, null);
+                null, null, null);
 
         var response = new CandidateResponse(10L, 1L, null, null , "Peter",
                 "Imrich", null, null, "Zurich", null, null, null,
-                null, null, null, null, null);
+                null, null, null, null, null, null);
 
         when(candidateRepository.findById(10L)).thenReturn(Optional.of(candidate));
 

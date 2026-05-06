@@ -68,6 +68,10 @@ public class Candidate {
     @Column(name = "profile_photo_url")
     private String profilePhotoUrl;
 
+    @Column(name = "profile_visible", nullable = false)
+    @Builder.Default
+    private boolean profileVisible = true;
+
     @OneToOne(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     private CandidatePreference candidatePreference;
 

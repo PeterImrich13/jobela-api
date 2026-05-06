@@ -1,8 +1,5 @@
 package com.jobela.jobela_api.user.controller;
 
-
-import java.util.*;
-
 import com.jobela.jobela_api.user.dto.request.ChangePasswordRequest;
 import com.jobela.jobela_api.user.dto.request.CreateUserRequest;
 import com.jobela.jobela_api.user.dto.request.UpdateUserRequest;
@@ -12,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
@@ -28,7 +26,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/{userId}")                                            //endpoints wait on employer authorization
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
         var user = userService.getUserById(userId);
         return ResponseEntity.ok(user);
@@ -52,6 +50,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/password")
+    @PreAuthorize("hasRole('ADMIN') or @userSecurity.isCurrentUser(#userId, authentication)")
     public ResponseEntity<Void> changePassword(@PathVariable Long userId, @Valid @RequestBody ChangePasswordRequest request) {
         userService.changePassword(userId, request);
         return ResponseEntity.noContent().build();

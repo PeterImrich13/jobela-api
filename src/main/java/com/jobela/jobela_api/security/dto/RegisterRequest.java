@@ -6,14 +6,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record RegisterRequest(
-        @NotBlank
-        @Email
+        @NotBlank(message = "Email cannot be blank")
+        @Email(message = "Invalid email format")
         String email,
 
-        @NotBlank
+        @NotBlank(message = "Password cannot be blank")
         String password,
 
-        @NotNull
+        @NotNull(message = "User role cannot be null")
         UserRole role
 ) {
 }

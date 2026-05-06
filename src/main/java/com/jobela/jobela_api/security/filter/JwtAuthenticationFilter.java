@@ -1,6 +1,5 @@
 package com.jobela.jobela_api.security.filter;
 
-
 import com.jobela.jobela_api.security.jwt.JwtService;
 import com.jobela.jobela_api.security.user.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
