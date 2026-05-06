@@ -21,18 +21,21 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
         var createdUser = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-    @GetMapping("/{userId}")                                            //endpoints wait on employer authorization
+    @GetMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long userId) {
         var user = userService.getUserById(userId);
         return ResponseEntity.ok(user);
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -44,6 +47,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or @userSecurity.isCurrentUser(#userId, authentication)")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId,@Valid @RequestBody UpdateUserRequest request) {
         var updatedUser = userService.updateUser(userId, request);
         return ResponseEntity.ok(updatedUser);
@@ -57,18 +61,21 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/deactivate")
+    @PreAuthorize("hasRole('ADMIN') or @userSecurity.isCurrentUser(#userId, authentication)")
     public ResponseEntity<Void> deactivateUser(@PathVariable Long userId) {
         userService.deactivateUser(userId);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{userId}/activate")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> activateUser(@PathVariable Long userId) {
         userService.activateUser(userId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         return ResponseEntity.noContent().build();

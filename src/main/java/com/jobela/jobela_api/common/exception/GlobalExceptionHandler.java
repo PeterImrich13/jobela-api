@@ -198,6 +198,22 @@ public class GlobalExceptionHandler {
         return notFound(ex.getMessage(), request);
     }
 
+    @ExceptionHandler(EmployerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEmployerNotFound(
+            EmployerNotFoundException ex, HttpServletRequest request) {
+        log.warn("Employer not found: {}", ex.getMessage());
+
+        return notFound(ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(EmployerAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleEmployerAlreadyExists(
+            EmployerAlreadyExistsException ex, HttpServletRequest request) {
+        log.warn("Employer already exists: {}", ex.getMessage());
+
+        return notFound(ex.getMessage(), request);
+    }
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex, HttpServletRequest request) {
         log.warn("Bad request: {}", ex.getMessage());
