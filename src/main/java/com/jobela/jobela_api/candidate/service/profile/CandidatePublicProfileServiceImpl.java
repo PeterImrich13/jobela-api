@@ -5,12 +5,15 @@ import com.jobela.jobela_api.candidate.entity.Candidate;
 import com.jobela.jobela_api.candidate.mapper.*;
 import com.jobela.jobela_api.candidate.repository.CandidateRepository;
 import com.jobela.jobela_api.common.exception.CandidateNotFoundException;
+import com.jobela.jobela_api.common.pagination.PaginationUtils;
+import com.jobela.jobela_api.common.sort.CandidatePublicProfileSortFields;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
 @Service
 @Slf4j
@@ -43,12 +46,15 @@ public class CandidatePublicProfileServiceImpl implements CandidatePublicProfile
     }
 
     @Override
-    public List<CandidatePublicProfileResponse> getAllCandidatePublicProfiles() {
-        log.info("Fetching all visible public candidate profiles");
+    public Page<CandidatePublicProfileResponse> getAllCandidatePublicProfiles(Pageable pageable) {
+        log.info("Fetching all visible public candidate profiles with pagination");
 
-        return candidateRepository.findAllByProfileVisibleTrue().stream()
-                .map(this::toPublicProfileResponse)
-                .toList();
+        PaginationUtils.validatePageable(
+                pageable,
+                CandidatePublicProfileSortFields.ALLOWED);
+
+        return candidateRepository.findAllByProfileVisibleTrue(pageable)
+                .map(this::toPublicProfileResponse);
     }
 
     private Candidate getCandidateOrThrow(Long candidateId) {

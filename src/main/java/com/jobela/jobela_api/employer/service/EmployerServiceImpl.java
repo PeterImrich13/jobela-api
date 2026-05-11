@@ -4,6 +4,8 @@ import com.jobela.jobela_api.common.exception.BadRequestException;
 import com.jobela.jobela_api.common.exception.EmployerAlreadyExistsException;
 import com.jobela.jobela_api.common.exception.EmployerNotFoundException;
 import com.jobela.jobela_api.common.exception.UserNotFoundException;
+import com.jobela.jobela_api.common.pagination.PaginationUtils;
+import com.jobela.jobela_api.common.sort.EmployerSortFields;
 import com.jobela.jobela_api.employer.dto.request.CreateEmployerRequest;
 import com.jobela.jobela_api.employer.dto.request.UpdateEmployerRequest;
 import com.jobela.jobela_api.employer.dto.response.EmployerResponse;
@@ -14,11 +16,10 @@ import com.jobela.jobela_api.user.entity.User;
 import com.jobela.jobela_api.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Slf4j
@@ -74,14 +75,13 @@ public class EmployerServiceImpl implements EmployerService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EmployerResponse> getAllEmployers() {
-        log.info("Fetching all employers");
+    public Page<EmployerResponse> getAllEmployers(Pageable pageable) {
+        log.info("Fetching all employers with pagination");
 
-        var employers = employerRepository.findAll();
+        PaginationUtils.validatePageable(pageable, EmployerSortFields.ALLOWED);
 
-        return employers.stream()
-                .map(employerMapper::toResponse)
-                .toList();
+        return employerRepository.findAll(pageable)
+                .map(employerMapper::toResponse);
     }
 
     @Override

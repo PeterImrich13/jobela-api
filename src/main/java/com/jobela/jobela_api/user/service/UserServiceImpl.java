@@ -1,10 +1,11 @@
 package com.jobela.jobela_api.user.service;
 
-import com.jobela.jobela_api.common.exception.InvalidPaginationParameterException;
 import com.jobela.jobela_api.common.exception.InvalidPasswordException;
 import com.jobela.jobela_api.common.exception.UserAlreadyExistsException;
 import com.jobela.jobela_api.common.exception.UserNotFoundException;
 import com.jobela.jobela_api.common.mapper.StringMapperHelper;
+import com.jobela.jobela_api.common.pagination.PaginationUtils;
+import com.jobela.jobela_api.common.sort.UserSortFields;
 import com.jobela.jobela_api.user.dto.request.ChangePasswordRequest;
 import com.jobela.jobela_api.user.dto.request.CreateUserRequest;
 import com.jobela.jobela_api.user.dto.request.UpdateUserRequest;
@@ -16,8 +17,7 @@ import com.jobela.jobela_api.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,16 +69,10 @@ public class UserServiceImpl implements UserService {
 
    @Override
    @Transactional(readOnly = true)
-   public Page<UserResponse> getAllUsers(int page, int size, String sortBy, String direction) {
-       log.info("Fetching all users page={}, size={}, sortBy={}, direction={}", page, size, sortBy, direction);
+   public Page<UserResponse> getAllUsers(Pageable pageable) {
+       log.info("Fetching all users with pagination");
 
-       validatePagingAndSorting(page, size, sortBy, direction);
-
-       var sort = direction.equalsIgnoreCase("desc")
-               ? Sort.by(sortBy).descending()
-               : Sort.by(sortBy).ascending();
-
-       var pageable = PageRequest.of(page, size, sort);
+       PaginationUtils.validatePageable(pageable, UserSortFields.ALLOWED);
 
        return userRepository.findAll(pageable)
                .map(userMapper::toResponse);
@@ -169,24 +163,4 @@ public class UserServiceImpl implements UserService {
                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
 
    }
-
-   private void validatePagingAndSorting(int page, int size, String sortBy, String direction) {
-       if (page < 0) {
-           throw new InvalidPaginationParameterException("Page must be greater than or equal to 0");
-       }
-
-       if (size <= 0 || size > 50) {
-           throw new InvalidPaginationParameterException("Size must be between 1 and 50");
-       }
-
-       if (!direction.equalsIgnoreCase("asc") && !direction.equalsIgnoreCase("desc")) {
-           throw new InvalidPaginationParameterException("Direction must be either 'asc' or 'desc'");
-       }
-
-       var allowedSortFields = Set.of("id", "email", "createdAt", "updatedAt");
-
-       if (!allowedSortFields.contains(sortBy)) {
-           throw new InvalidPaginationParameterException("Invalid sortBy value. Allowed values: id, email, createdAt, updatedAt");
-       }
-   }
-    }
+}
