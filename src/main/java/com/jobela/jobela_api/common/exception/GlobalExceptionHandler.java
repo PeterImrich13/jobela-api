@@ -211,7 +211,7 @@ public class GlobalExceptionHandler {
             EmployerAlreadyExistsException ex, HttpServletRequest request) {
         log.warn("Employer already exists: {}", ex.getMessage());
 
-        return notFound(ex.getMessage(), request);
+        return conflict(ex.getMessage(), request);
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -239,12 +239,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(validationErrorResponse);
     }
 
-    @ExceptionHandler(InvalidPaginationParameterException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidPaginationParameter(
-            InvalidPaginationParameterException ex, HttpServletRequest request
+    @ExceptionHandler(InvalidPaginationException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPagination(
+            InvalidPaginationException ex, HttpServletRequest request
     ) {
-        log.warn("Invalid pagination or sorting parameter: {}", ex.getMessage());
-
         return badRequest(ex.getMessage(), request);
     }
 

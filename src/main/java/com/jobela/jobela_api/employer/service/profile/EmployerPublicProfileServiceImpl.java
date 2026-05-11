@@ -1,15 +1,17 @@
 package com.jobela.jobela_api.employer.service.profile;
 
 import com.jobela.jobela_api.common.exception.EmployerNotFoundException;
+import com.jobela.jobela_api.common.pagination.PaginationUtils;
+import com.jobela.jobela_api.common.sort.EmployerPublicProfileSortFields;
 import com.jobela.jobela_api.employer.dto.response.profile.EmployerPublicProfileResponse;
 import com.jobela.jobela_api.employer.entity.Employer;
 import com.jobela.jobela_api.employer.repository.EmployerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Slf4j
@@ -33,12 +35,13 @@ public class EmployerPublicProfileServiceImpl implements EmployerPublicProfileSe
     }
 
     @Override
-    public List<EmployerPublicProfileResponse> getAllEmployerPublicProfiles() {
-        log.info("Fetching all public employer profiles");
+    public Page<EmployerPublicProfileResponse> getAllEmployerPublicProfiles(Pageable pageable) {
+        log.info("Fetching all public employer profiles with pagination");
 
-        return employerRepository.findAllByProfileVisibleTrue().stream()
-                .map(this::toPublicProfileResponse)
-                .toList();
+        PaginationUtils.validatePageable(pageable, EmployerPublicProfileSortFields.ALLOWED);
+
+        return employerRepository.findAllByProfileVisibleTrue(pageable)
+                .map(this::toPublicProfileResponse);
     }
 
     private Employer getEmployerOrThrow(Long employerId) {
