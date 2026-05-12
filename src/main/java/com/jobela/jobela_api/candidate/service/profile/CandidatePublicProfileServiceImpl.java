@@ -1,9 +1,11 @@
 package com.jobela.jobela_api.candidate.service.profile;
 
+import com.jobela.jobela_api.candidate.dto.request.profile.CandidatePublicProfileSearchCriteria;
 import com.jobela.jobela_api.candidate.dto.response.profile.CandidatePublicProfileResponse;
 import com.jobela.jobela_api.candidate.entity.Candidate;
 import com.jobela.jobela_api.candidate.mapper.*;
 import com.jobela.jobela_api.candidate.repository.CandidateRepository;
+import com.jobela.jobela_api.candidate.specification.CandidateSpecification;
 import com.jobela.jobela_api.common.exception.CandidateNotFoundException;
 import com.jobela.jobela_api.common.pagination.PaginationUtils;
 import com.jobela.jobela_api.common.sort.CandidatePublicProfileSortFields;
@@ -46,14 +48,20 @@ public class CandidatePublicProfileServiceImpl implements CandidatePublicProfile
     }
 
     @Override
-    public Page<CandidatePublicProfileResponse> getAllCandidatePublicProfiles(Pageable pageable) {
-        log.info("Fetching all visible public candidate profiles with pagination");
+    public Page<CandidatePublicProfileResponse> getAllCandidatePublicProfiles(
+            CandidatePublicProfileSearchCriteria criteria, Pageable pageable) {
+        log.info("Fetching all visible public candidate profiles with criteria={} and pagination", criteria);
 
         PaginationUtils.validatePageable(
                 pageable,
                 CandidatePublicProfileSortFields.ALLOWED);
 
-        return candidateRepository.findAllByProfileVisibleTrue(pageable)
+        var specification = CandidateSpecification.profileVisible()
+                .and(CandidateSpecification.countryEquals(criteria.country()))
+                .and(CandidateSpecification.cityEquals(criteria.city()))
+                .and(CandidateSpecification.search(criteria.search()));
+
+        return candidateRepository.findAll(specification, pageable)
                 .map(this::toPublicProfileResponse);
     }
 
