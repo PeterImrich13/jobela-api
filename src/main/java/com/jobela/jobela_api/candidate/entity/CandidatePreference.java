@@ -1,5 +1,6 @@
 package com.jobela.jobela_api.candidate.entity;
 
+import com.jobela.jobela_api.common.enums.CandidateTargetPosition;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,10 @@ public class CandidatePreference {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "candidate_id", nullable = false, unique = true)
     private Candidate candidate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target_position", nullable = false, length = 100)
+    private CandidateTargetPosition targetPosition;
 
     @Column(name = "desired_salary_min")
     private Integer desiredSalaryMin;

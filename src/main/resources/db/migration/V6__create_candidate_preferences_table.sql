@@ -1,6 +1,7 @@
 CREATE TABLE candidate_preferences (
     id BIGSERIAL PRIMARY KEY,
     candidate_id BIGINT NOT NULL UNIQUE,
+    target_position VARCHAR(100) NOT NULL,
     desired_salary_min INTEGER,
     desired_salary_max INTEGER,
     salary_currency VARCHAR (10),
