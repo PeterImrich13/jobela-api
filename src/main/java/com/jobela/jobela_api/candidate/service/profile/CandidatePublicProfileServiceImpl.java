@@ -59,7 +59,14 @@ public class CandidatePublicProfileServiceImpl implements CandidatePublicProfile
         var specification = CandidateSpecification.profileVisible()
                 .and(CandidateSpecification.countryEquals(criteria.country()))
                 .and(CandidateSpecification.cityEquals(criteria.city()))
-                .and(CandidateSpecification.search(criteria.search()));
+                .and(CandidateSpecification.search(criteria.search()))
+                .and(CandidateSpecification.skillEquals(criteria.skill()))
+                .and(CandidateSpecification.languageEquals(criteria.language()))
+                .and(CandidateSpecification.openToWorkEquals(criteria.openToWork()))
+                .and(CandidateSpecification.targetPositionEquals(criteria.targetPosition()))
+                .and(CandidateSpecification.languageLevelEquals(criteria.level()))
+                .and(CandidateSpecification.authorizationTypeEquals(criteria.authorizationType()))
+                .and(CandidateSpecification.sponsorshipRequiredEquals(criteria.sponsorshipRequired()));
 
         return candidateRepository.findAll(specification, pageable)
                 .map(this::toPublicProfileResponse);

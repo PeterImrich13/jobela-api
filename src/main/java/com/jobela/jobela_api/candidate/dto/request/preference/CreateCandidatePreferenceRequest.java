@@ -1,5 +1,6 @@
 package com.jobela.jobela_api.candidate.dto.request.preference;
 
+import com.jobela.jobela_api.common.enums.CandidateTargetPosition;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -7,6 +8,10 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 public record CreateCandidatePreferenceRequest(
+
+        @NotNull(message = "Target position cannot be null")
+        CandidateTargetPosition targetPosition,
+
         Integer desiredSalaryMin,
 
         Integer desiredSalaryMax,
