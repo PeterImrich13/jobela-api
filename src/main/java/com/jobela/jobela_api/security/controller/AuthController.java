@@ -1,6 +1,5 @@
 package com.jobela.jobela_api.security.controller;
 
-
 import com.jobela.jobela_api.security.dto.AuthResponse;
 import com.jobela.jobela_api.security.dto.CurrentUserResponse;
 import com.jobela.jobela_api.security.dto.LoginRequest;
