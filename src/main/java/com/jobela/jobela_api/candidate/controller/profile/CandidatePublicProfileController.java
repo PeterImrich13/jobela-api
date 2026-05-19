@@ -2,6 +2,7 @@ package com.jobela.jobela_api.candidate.controller.profile;
 
 import com.jobela.jobela_api.candidate.dto.request.profile.CandidatePublicProfileSearchCriteria;
 import com.jobela.jobela_api.candidate.dto.response.profile.CandidatePublicProfileResponse;
+import com.jobela.jobela_api.candidate.dto.response.profile.CandidatePublicProfileSummaryResponse;
 import com.jobela.jobela_api.candidate.service.profile.CandidatePublicProfileService;
 import com.jobela.jobela_api.common.enums.AuthorizationType;
 import com.jobela.jobela_api.common.enums.CandidateTargetPosition;
@@ -34,7 +35,7 @@ public class CandidatePublicProfileController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYER')")
-    public ResponseEntity<Page<CandidatePublicProfileResponse>> getAllCandidatePublicProfiles(
+    public ResponseEntity<Page<CandidatePublicProfileSummaryResponse>> getAllCandidatePublicProfiles(
             @RequestParam(required = false) String country,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String search,

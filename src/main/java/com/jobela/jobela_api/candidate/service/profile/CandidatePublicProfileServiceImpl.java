@@ -2,6 +2,7 @@ package com.jobela.jobela_api.candidate.service.profile;
 
 import com.jobela.jobela_api.candidate.dto.request.profile.CandidatePublicProfileSearchCriteria;
 import com.jobela.jobela_api.candidate.dto.response.profile.CandidatePublicProfileResponse;
+import com.jobela.jobela_api.candidate.dto.response.profile.CandidatePublicProfileSummaryResponse;
 import com.jobela.jobela_api.candidate.entity.Candidate;
 import com.jobela.jobela_api.candidate.mapper.*;
 import com.jobela.jobela_api.candidate.repository.CandidateRepository;
@@ -33,6 +34,7 @@ public class CandidatePublicProfileServiceImpl implements CandidatePublicProfile
     private final CandidateLocationPreferenceMapper candidateLocationPreferenceMapper;
     private final CandidateWorkAuthorizationMapper candidateWorkAuthorizationMapper;
     private final CandidateWorkExperienceMapper candidateWorkExperienceMapper;
+    private final CandidatePublicProfileMapper candidatePublicProfileMapper;
 
     @Override
     public CandidatePublicProfileResponse getCandidatePublicProfile(Long candidateId) {
@@ -48,7 +50,7 @@ public class CandidatePublicProfileServiceImpl implements CandidatePublicProfile
     }
 
     @Override
-    public Page<CandidatePublicProfileResponse> getAllCandidatePublicProfiles(
+    public Page<CandidatePublicProfileSummaryResponse> getAllCandidatePublicProfiles(
             CandidatePublicProfileSearchCriteria criteria, Pageable pageable) {
         log.info("Fetching all visible public candidate profiles with criteria={} and pagination", criteria);
 
@@ -69,7 +71,7 @@ public class CandidatePublicProfileServiceImpl implements CandidatePublicProfile
                 .and(CandidateSpecification.sponsorshipRequiredEquals(criteria.sponsorshipRequired()));
 
         return candidateRepository.findAll(specification, pageable)
-                .map(this::toPublicProfileResponse);
+                .map(candidatePublicProfileMapper::toSummaryResponse);
     }
 
     private Candidate getCandidateOrThrow(Long candidateId) {
